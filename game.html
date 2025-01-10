@@ -1,0 +1,1339 @@
+<html><head><base href=".">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoGames - Simple Crypto Betting</title>
+  <style>
+    :root {
+      --primary: #2a2f42;
+      --secondary: #4c5474;
+      --accent: #8b62ff;
+      --text: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--primary);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    nav {
+      background: var(--secondary);
+      padding: 1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .balance {
+      background: rgba(0,0,0,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .how-to-play {
+      background: var(--secondary);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .step {
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .step-number {
+      background: var(--accent);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .game-card {
+      background: var(--secondary);
+      padding: 1.5rem;
+      border-radius: 12px;
+      transition: transform 0.2s;
+      box-shadow: 0 0 20px rgba(139, 98, 255, 0.2);
+      border: 1px solid rgba(139, 98, 255, 0.1);
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 30px rgba(139, 98, 255, 0.4);
+    }
+
+    .game-demo {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .coin {
+      width: 100px;
+      height: 100px;
+      margin: 1rem auto;
+      transform-style: preserve-3d;
+      transition: transform 2s;
+    }
+
+    .coin.flipping {
+      animation: fastFlip 0.2s infinite linear;
+    }
+
+    @keyframes fastFlip {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    .dice-demo {
+      font-size: 4rem;
+      text-align: center;
+    }
+
+    .rolling {
+      animation: shake 0.5s infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+
+    .result-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+
+    .win {
+      color: #4CAF50;
+    }
+
+    .lose {
+      color: #f44336;
+    }
+
+    .bet-controls {
+      margin-top: 1.5rem;
+    }
+
+    .bet-input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    .play-button {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .play-button:hover {
+      background: #9d7bff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 98, 255, 0.3);
+    }
+
+    .play-button:active {
+      transform: translateY(0);
+    }
+
+    .play-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .mode-switch {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .mode-switch:hover {
+      background: #9d7bff;
+      transform: translateY(-2px);
+    }
+
+    .mode-switch.demo-mode {
+      background: #4CAF50;
+    }
+
+    .mode-switch.real-mode {
+      background: #f44336;
+    }
+
+    .mode-indicator {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      margin-left: 1rem;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .demo-badge {
+      background: #4CAF50;
+    }
+
+    .real-badge {
+      background: #f44336;
+    }
+
+    .action-buttons {
+      display: none;
+      gap: 1rem;
+      margin-left: 1rem;
+    }
+
+    .deposit-button, .withdraw-button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .deposit-button:hover, .withdraw-button:hover {
+      background: #9d7bff;
+      transform: translateY(-2px);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--secondary);
+      padding: 2rem;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 1rem;
+    }
+
+    .close-modal {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .volatility-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      background: linear-gradient(45deg, #1a1a2e, #16213e);
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+    }
+
+    .volatility-number {
+      font-size: 4rem;
+      font-weight: bold;
+      text-align: center;
+      color: var(--accent);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .rotating-circle {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 50%;
+      top: 0;
+      left: 50%;
+      transform-origin: 0 100px;
+      animation: rotate 2s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg) translateX(-10px); }
+      to { transform: rotate(360deg) translateX(-10px); }
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .number-cell {
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .number-cell.active {
+      background: var(--accent);
+    }
+
+    .prediction-options {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .prediction-btn {
+      flex: 1;
+      padding: 0.5rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .prediction-btn.selected {
+      background: #4CAF50;
+    }
+
+    .rocket-container {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(45deg, #1a1a2e, #16213e);
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    .rocket {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      transition: transform 0.2s;
+      filter: drop-shadow(0 0 10px rgba(255,75,75,0.5));
+    }
+
+    .multiplier {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .crash-animation {
+      animation: crash 0.5s;
+    }
+
+    @keyframes crash {
+      0% { transform: rotate(0); }
+      25% { transform: rotate(-20deg); }
+      50% { transform: rotate(20deg); }
+      75% { transform: rotate(-20deg); }
+      100% { transform: rotate(0); }
+    }
+
+    .previous-rounds {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+
+    .rounds-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .round-result {
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .round-crash {
+      background: #f44336;
+      color: white;
+    }
+
+    .round-cashout {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .game-icon {
+      font-size: 1.5em;
+      margin-right: 0.5em;
+      vertical-align: middle;
+    }
+    
+    .slideshow {
+      background: linear-gradient(45deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(139, 98, 255, 0.2);
+      border: 1px solid rgba(139, 98, 255, 0.1);
+    }
+
+    .slide {
+      display: none;
+      animation: fadeIn 1s;
+      text-align: center;
+      padding: 2rem;
+      cursor: pointer; /* Add cursor pointer to indicate clickability */
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .slide h2 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px rgba(139, 98, 255, 0.5);
+      position: relative;
+      display: inline-block;
+    }
+
+    .slide h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(139, 98, 255, 0.5);
+    }
+
+    .slide p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .slide-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .indicator:hover {
+      background: rgba(139, 98, 255, 0.5);
+    }
+
+    .indicator.active {
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(139, 98, 255, 0.5);
+      transform: scale(1.2);
+    }
+
+    @keyframes fadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+
+    .slide::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(139, 98, 255, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    .slide-icon {
+      font-size: 3rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      opacity: 0.8;
+      text-shadow: 0 0 15px rgba(139, 98, 255, 0.6);
+    }
+    
+    @keyframes highlight {
+      0% { transform: scale(1); box-shadow: 0 0 20px rgba(139, 98, 255, 0.2); }
+      50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(139, 98, 255, 0.4); }
+      100% { transform: scale(1); box-shadow: 0 0 20px rgba(139, 98, 255, 0.2); }
+    }
+    /* Add after existing styles */
+    .footer {
+      background: var(--secondary);
+      padding: 4rem 2rem;
+      margin-top: 4rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-section h3 {
+      color: var(--accent);
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section li {
+      margin: 0.5rem 0;
+    }
+
+    .footer-section a {
+      color: var(--text);
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .footer-section a:hover {
+      opacity: 1;
+    }
+
+    .certificates {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .certificate {
+      background: rgba(0,0,0,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .certificate svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--accent);
+    }
+
+    .faq-item {
+      margin: 1rem 0;
+    }
+
+    .faq-question {
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
+
+    .faq-answer {
+      padding-left: 1rem;
+      border-left: 2px solid var(--accent);
+      opacity: 0.9;
+      display: none;
+    }
+
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 3rem;
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+  </style>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body>
+  <div id="particles-js" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+  <nav>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <h1>CryptoGames - How To Play</h1>
+      <button id="modeSwitch" class="mode-switch demo-mode">
+        Switch to Real Account
+      </button>
+      <span id="modeIndicator" class="mode-indicator demo-badge">DEMO MODE</span>
+    </div>
+    <div class="balance">Balance: <span id="balance">1000</span> USDT</div>
+    <div class="action-buttons" id="actionButtons">
+      <button class="deposit-button" onclick="showDepositModal()">Deposit</button>
+      <button class="withdraw-button" onclick="showWithdrawModal()">Withdraw</button>
+    </div>
+  </nav>
+
+  <div class="slideshow" id="promotionSlideshow">
+    <div class="slide active">
+      <div class="slide-icon">&#x1f3b2;</div>
+      <h2>Double Your Fortune!</h2>
+      <p>Experience the thrill of instant wins with our Coin Flip game. Simple, fast, and a 50% chance to double your money!</p>
+    </div>
+    
+    <div class="slide">
+      <div class="slide-icon">&#x1f3af;</div>
+      <h2>Roll Your Way to Riches!</h2>
+      <p>6x multiplier awaits in our Dice Roll game. Pick your lucky number and watch the magic happen!</p>
+    </div>
+    
+    <div class="slide">
+      <div class="slide-icon">&#x1f4c8;</div>
+      <h2>Master the Market!</h2>
+      <p>Put your prediction skills to the test in Crypto Index Growth. Analyze the patterns, make your move, win big!</p>
+    </div>
+    
+    <div class="slide">
+      <div class="slide-icon">&#x1f680;</div>
+      <h2>Blast Off to Victory!</h2>
+      <p>Join the crypto space race in MuskPlay! Time your exit perfectly and secure gains up to 100x your bet!</p>
+    </div>
+    
+    <div class="slide-indicators">
+      <div class="indicator active"></div>
+      <div class="indicator"></div>
+      <div class="indicator"></div>
+      <div class="indicator"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="how-to-play">
+      <h2>Getting Started</h2>
+      <div class="step">
+        <div class="step-number">1</div>
+        <div>Choose your game from below</div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div>Enter your bet amount (Min: 1 USDT)</div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div>Play and win up to 6x your bet!</div>
+      </div>
+    </div>
+
+    <div class="games-grid">
+      <div class="game-card">
+        <h2>
+          <span class="game-icon">&#xe902;</span>
+          <span class="shimmer">Coin Flip</span>
+        </h2>
+        <div class="game-demo">
+          <svg class="coin" id="coinSvg" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="#ffd700" stroke="#b8860b" stroke-width="2"/>
+            <text x="50" y="60" text-anchor="middle" fill="#b8860b" font-size="24">&#xe902;</text>
+          </svg>
+          <h3>How to Play:</h3>
+          <ol>
+            <li>Enter your bet amount</li>
+            <li>Click &quot;Flip&quot;</li>
+            <li>If you win, get 2x your bet!</li>
+          </ol>
+          <p>50% chance to win</p>
+          <div class="bet-controls">
+            <input type="number" id="coinBet" class="bet-input" placeholder="Enter bet amount in USDT" min="1" step="1">
+            <button class="play-button" onclick="playCoinFlip()">FLIP COIN</button>
+          </div>
+          <div class="result-overlay" id="coinResult"></div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <h2>
+          <span class="game-icon">&#xe902;</span>
+          <span class="shimmer">Dice Roll</span>
+        </h2>
+        <div class="game-demo">
+          <div class="dice-demo" id="diceDemo">&#xe902;</div>
+          <h3>How to Play:</h3>
+          <ol>
+            <li>Choose a number (1-6)</li>
+            <li>Enter your bet amount</li>
+            <li>If your number hits, win 6x your bet!</li>
+          </ol>
+          <p>16.6% chance to win</p>
+          <div class="bet-controls">
+            <select class="bet-input" id="diceNumber">
+              <option value>Select your number</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+            <input type="number" id="diceBet" class="bet-input" placeholder="Enter bet amount in USDT" min="1" step="1">
+            <button class="play-button" onclick="playDiceRoll()">ROLL DICE</button>
+          </div>
+          <div class="result-overlay" id="diceResult"></div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <h2>
+          <span class="game-icon">&#xe908;</span>
+          <span class="shimmer">Crypto Index Growth</span>
+        </h2>
+        <div class="game-demo">
+          <div class="volatility-container">
+            <div class="rotating-circle"></div>
+            <div class="volatility-number" id="volatilityNumber">0</div>
+          </div>
+          <div class="number-grid" id="numberGrid">
+            <!-- Will be populated by JS -->
+          </div>
+          <h3>How to Play:</h3>
+          <ol>
+            <li>Select number of ticks to predict growth (1-5)</li> 
+            <li>Choose if final number will match or differ</li>
+            <li>Enter your bet amount</li>
+            <li>Win up to 5x your bet!</li>
+          </ol>
+          <p>Higher multipliers for more ticks predicted</p>
+          <div class="bet-controls">
+            <select class="bet-input" id="tickCount">
+              <option value>Select tick count</option>
+              <option value="1">1 tick</option>
+              <option value="2">2 ticks</option>
+              <option value="3">3 ticks</option>
+              <option value="4">4 ticks</option>
+              <option value="5">5 ticks</option>
+            </select>
+            <div class="prediction-options">
+              <button class="prediction-btn" id="matchBtn">Match</button>
+              <button class="prediction-btn" id="differBtn">Differ</button>
+            </div>
+            <input type="number" id="volatilityBet" class="bet-input" placeholder="Enter bet amount in USDT" min="1" step="1">
+            <button class="play-button" onclick="playCryptoIndexGrowth()">PREDICT</button>
+          </div>
+          <div class="result-overlay" id="volatilityResult"></div>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <h2>
+          <span class="game-icon">&#xe90c;</span>
+          <span class="shimmer">MuskPlay</span>
+        </h2>
+        <div class="game-demo">
+          <div class="rocket-container">
+            <svg class="rocket" id="rocketSvg" viewBox="0 0 24 24">
+              <path fill="#ff4b4b" d="M12,2C12,2 7,4 7,12C7,15 10,16 11,16C11,16 11,18 9,22H15C13,18 13,16 13,16C14,16 17,15 17,12C17,4 12,2 12,2M12,5.5A1.5,1.5 0 0,1 13.5,7A1.5,1.5 0 0,1 12,8.5A1.5,1.5 0 0,1 10.5,7A1.5,1.5 0 0,1 12,5.5Z"/>
+            </svg>
+            <div class="multiplier" id="muskMultiplier">1.00x</div>
+          </div>
+          <div class="previous-rounds">
+            <h4>Previous Rounds</h4>
+            <div class="rounds-container" id="previousRounds"></div>
+          </div>
+          <h3>How to Play:</h3>
+          <ol>
+            <li>Place your bet</li>
+            <li>Watch the multiplier increase</li>
+            <li>Cash out before crash!</li>
+            <li>Win up to 100x your bet</li>
+          </ol>
+          <div class="bet-controls">
+            <input type="number" id="muskBet" class="bet-input" placeholder="Enter bet amount in USDT" min="1" step="1">
+            <button class="play-button" id="muskPlayBtn" onclick="playMuskGame()">LAUNCH</button>
+            <button class="play-button" id="muskCashoutBtn" style="display:none" onclick="cashoutMusk()">CASH OUT</button>
+          </div>
+          <div class="result-overlay" id="muskResult"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="depositModal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal(&apos;depositModal&apos;)">&#xd7;</button>
+      <h2>Deposit USDT</h2>
+      <input type="number" class="bet-input" id="depositAmount" placeholder="Enter amount to deposit">
+      <button class="play-button" onclick="handleDeposit()">Deposit</button>
+    </div>
+  </div>
+
+  <div class="modal" id="withdrawModal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal(&apos;withdrawModal&apos;)">&#xd7;</button>
+      <h2>Withdraw USDT</h2>
+      <input type="number" class="bet-input" id="withdrawAmount" placeholder="Enter amount to withdraw">
+      <button class="play-button" onclick="handleWithdraw()">Withdraw</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h3>Certificates &amp; Licenses</h3>
+        <div class="certificates">
+          <div class="certificate">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+            </svg>
+            Licensed Gaming Operator
+          </div>
+          <div class="certificate">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+            </svg>
+            SSL Secure Gaming
+          </div>
+          <div class="certificate">
+            <svg viewBox="0 0 24 24">
+              <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>
+            </svg>
+            Provably Fair Games
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h3>Awards</h3>
+        <ul>
+          <li>&#x1f3c6; Best Crypto Casino 2023</li>
+          <li>&#x1f31f; Most Innovative Platform</li>
+          <li>&#x1f48e; Excellence in Fair Gaming</li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Frequently Asked Questions</h3>
+        <div class="faq-item">
+          <div class="faq-question">How do I start playing?</div>
+          <div class="faq-answer">Simply deposit crypto to your account and choose your favorite game to start playing!</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">Is my money safe?</div>
+          <div class="faq-answer">Yes! We use industry-leading security measures and store funds in cold wallets.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">How can I withdraw my winnings?</div>
+          <div class="faq-answer">Withdrawals are processed instantly to your crypto wallet after verification.</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p> 2023 CryptoGames. All rights reserved. | Responsible Gaming</p>
+    </div>
+  </footer>
+
+  <script>let volatilityInterval;
+let selectedNumber = null;
+let numberTickInterval;
+let muskGameActive = false;
+let muskInterval;
+let currentMultiplier = 1;
+let previousRounds = [];
+const MAX_ROUNDS_SHOWN = 10;
+let currentSlide = 0;
+const slides = document.getElementsByClassName('slide');
+const indicators = document.getElementsByClassName('indicator');
+function playCoinFlip() {
+  const betAmount = parseFloat(document.getElementById('coinBet').value);
+  const balance = parseFloat(document.getElementById('balance').textContent);
+  if (!betAmount || betAmount > balance || betAmount < 1) {
+    alert('Please check your bet amount and balance');
+    return;
+  }
+  document.getElementById('balance').textContent = (balance - betAmount).toFixed(2);
+  const coin = document.querySelector('.coin');
+  coin.classList.add('flipping');
+  const win = Math.random() < 0.5;
+  setTimeout(() => {
+    coin.classList.remove('flipping');
+    const resultOverlay = document.getElementById('coinResult');
+    resultOverlay.textContent = win ? 'WIN!' : 'LOSE';
+    resultOverlay.className = `result-overlay ${win ? 'win' : 'lose'}`;
+    resultOverlay.style.display = 'flex';
+    if (win) {
+      const currentBalance = parseFloat(document.getElementById('balance').textContent);
+      document.getElementById('balance').textContent = (currentBalance + betAmount * 2).toFixed(2);
+    }
+    setTimeout(() => {
+      resultOverlay.style.display = 'none';
+    }, 2000);
+  }, 2000);
+}
+function playDiceRoll() {
+  const betAmount = parseFloat(document.getElementById('diceBet').value);
+  const selectedNumber = parseInt(document.getElementById('diceNumber').value);
+  const balance = parseFloat(document.getElementById('balance').textContent);
+  if (!betAmount || !selectedNumber || betAmount > balance || betAmount < 1) {
+    alert('Please check your inputs and balance');
+    return;
+  }
+  document.getElementById('balance').textContent = (balance - betAmount).toFixed(2);
+  const dice = document.getElementById('diceDemo');
+  dice.classList.add('rolling');
+  const result = Math.floor(Math.random() * 6) + 1;
+  setTimeout(() => {
+    dice.classList.remove('rolling');
+    dice.textContent = result;
+    const win = result === selectedNumber;
+    const resultOverlay = document.getElementById('diceResult');
+    resultOverlay.textContent = win ? 'WIN!' : 'LOSE';
+    resultOverlay.className = `result-overlay ${win ? 'win' : 'lose'}`;
+    resultOverlay.style.display = 'flex';
+    if (win) {
+      const currentBalance = parseFloat(document.getElementById('balance').textContent);
+      document.getElementById('balance').textContent = (currentBalance + betAmount * 6).toFixed(2);
+    }
+    setTimeout(() => {
+      resultOverlay.style.display = 'none';
+      dice.textContent = '⌂';
+    }, 2000);
+  }, 2000);
+}
+function playCryptoIndexGrowth() {
+  const betAmount = parseFloat(document.getElementById('volatilityBet').value);
+  const tickCount = parseInt(document.getElementById('tickCount').value);
+  const prediction = document.querySelector('.prediction-btn.selected')?.textContent;
+  const balance = parseFloat(document.getElementById('balance').textContent);
+  if (!betAmount || !tickCount || !prediction || betAmount > balance || betAmount < 1) {
+    alert('Please check your inputs and balance');
+    return;
+  }
+  document.getElementById('balance').textContent = (balance - betAmount).toFixed(2);
+  const numberGrid = document.getElementById('numberGrid');
+  let currentTick = 0;
+  let numbers = [];
+  if (volatilityInterval) clearInterval(volatilityInterval);
+  if (numberTickInterval) clearInterval(numberTickInterval);
+  let animationSpeed = 1000;
+  volatilityInterval = setInterval(() => {
+    const randomNum = Math.floor(Math.random() * 10);
+    document.getElementById('volatilityNumber').textContent = randomNum;
+    if (currentTick < tickCount) {
+      numbers.push(randomNum);
+      currentTick++;
+    } else {
+      clearInterval(volatilityInterval);
+      const lastNumber = numbers[numbers.length - 1];
+      const selectedNumber = 7;
+      const isMatch = lastNumber === selectedNumber;
+      const userWantedMatch = prediction === 'Match';
+      const won = isMatch && userWantedMatch || !isMatch && !userWantedMatch;
+      const resultOverlay = document.getElementById('volatilityResult');
+      resultOverlay.textContent = won ? 'WIN!' : 'LOSE';
+      resultOverlay.className = `result-overlay ${won ? 'win' : 'lose'}`;
+      resultOverlay.style.display = 'flex';
+      if (won) {
+        const multiplier = tickCount;
+        const currentBalance = parseFloat(document.getElementById('balance').textContent);
+        document.getElementById('balance').textContent = (currentBalance + betAmount * multiplier).toFixed(2);
+      }
+      setTimeout(() => {
+        resultOverlay.style.display = 'none';
+        numbers = [];
+        currentTick = 0;
+        numberTickInterval = setInterval(() => {
+          const randomNum = Math.floor(Math.random() * 10);
+          document.getElementById('volatilityNumber').textContent = randomNum;
+        }, 1000);
+      }, 2000);
+    }
+  }, animationSpeed);
+}
+function handleDeposit() {}
+function handleWithdraw() {}
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = 'none';
+}
+function showDepositModal() {
+  document.getElementById('depositModal').style.display = 'flex';
+}
+function showWithdrawModal() {
+  document.getElementById('withdrawModal').style.display = 'flex';
+}
+function playMuskGame() {
+  const betAmount = parseFloat(document.getElementById('muskBet').value);
+  const balance = parseFloat(document.getElementById('balance').textContent);
+  if (!betAmount || betAmount > balance || betAmount < 1) {
+    alert('Please check your bet amount and balance');
+    return;
+  }
+  if (!muskGameActive) {
+    document.getElementById('balance').textContent = (balance - betAmount).toFixed(2);
+    document.getElementById('muskPlayBtn').style.display = 'none';
+    document.getElementById('muskCashoutBtn').style.display = 'block';
+    muskGameActive = true;
+    currentMultiplier = 1;
+    const rocket = document.getElementById('rocketSvg');
+    const multiplierDisplay = document.getElementById('muskMultiplier');
+    let height = 20;
+    muskInterval = setInterval(() => {
+      if (muskGameActive) {
+        currentMultiplier *= 1.015;
+        height += currentMultiplier / 2;
+        rocket.style.transform = `translateY(-${height}px) rotate(${height / 10}deg)`;
+        multiplierDisplay.textContent = currentMultiplier.toFixed(2) + 'x';
+        const trail = document.createElement('div');
+        trail.className = 'rocket-trail';
+        trail.style.cssText = `
+          position: absolute;
+          left: ${rocket.offsetLeft + 25}px;
+          bottom: ${200 - height}px;
+          width: 4px;
+          height: 10px;
+          background: rgba(255,75,75,0.5);
+          border-radius: 2px;
+        `;
+        document.querySelector('.rocket-container').appendChild(trail);
+        setTimeout(() => trail.remove(), 1000);
+        if (Math.random() < 0.001 * currentMultiplier) {
+          crashMusk();
+        }
+      }
+    }, 100);
+  }
+}
+function cashoutMusk() {
+  if (!muskGameActive) return;
+  const betAmount = parseFloat(document.getElementById('muskBet').value);
+  const currentBalance = parseFloat(document.getElementById('balance').textContent);
+  const winnings = betAmount * currentMultiplier;
+  document.getElementById('balance').textContent = (currentBalance + winnings).toFixed(2);
+  const resultOverlay = document.getElementById('muskResult');
+  resultOverlay.textContent = 'WIN: ' + winnings.toFixed(2) + ' USDT';
+  resultOverlay.className = 'result-overlay win';
+  resultOverlay.style.display = 'flex';
+  previousRounds.unshift({
+    type: 'cashout',
+    multiplier: currentMultiplier
+  });
+  if (previousRounds.length > MAX_ROUNDS_SHOWN) {
+    previousRounds.pop();
+  }
+  updatePreviousRounds();
+  resetMuskGame();
+}
+function crashMusk() {
+  muskGameActive = false;
+  clearInterval(muskInterval);
+  const rocket = document.getElementById('rocketSvg');
+  rocket.style.transform += ' scale(1.5)';
+  rocket.style.opacity = '0';
+  const explosion = document.createElement('div');
+  explosion.className = 'explosion';
+  explosion.style.cssText = `
+    position: absolute;
+    left: ${rocket.offsetLeft}px;
+    top: ${rocket.offsetTop}px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #ff4b4b, transparent);
+    animation: explode 0.5s forwards;
+  `;
+  document.querySelector('.rocket-container').appendChild(explosion);
+  const resultOverlay = document.getElementById('muskResult');
+  resultOverlay.textContent = 'CRASHED!';
+  resultOverlay.className = 'result-overlay lose';
+  resultOverlay.style.display = 'flex';
+  previousRounds.unshift({
+    type: 'crash',
+    multiplier: currentMultiplier
+  });
+  if (previousRounds.length > MAX_ROUNDS_SHOWN) {
+    previousRounds.pop();
+  }
+  updatePreviousRounds();
+  setTimeout(() => resetMuskGame(), 2000);
+}
+function resetMuskGame() {
+  muskGameActive = false;
+  clearInterval(muskInterval);
+  const rocket = document.getElementById('rocketSvg');
+  rocket.style.transform = 'translateY(0)';
+  rocket.classList.remove('crash-animation');
+  document.getElementById('muskPlayBtn').style.display = 'block';
+  document.getElementById('muskCashoutBtn').style.display = 'none';
+  document.getElementById('muskMultiplier').textContent = '1.00x';
+  setTimeout(() => {
+    document.getElementById('muskResult').style.display = 'none';
+  }, 2000);
+}
+function updatePreviousRounds() {
+  const container = document.getElementById('previousRounds');
+  container.innerHTML = '';
+  previousRounds.forEach(round => {
+    const div = document.createElement('div');
+    div.className = `round-result round-${round.type}`;
+    div.textContent = round.multiplier.toFixed(2) + 'x';
+    container.appendChild(div);
+  });
+}
+function showSlide(index) {
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].classList.remove('active');
+    indicators[i].classList.remove('active');
+  }
+  slides[index].classList.add('active');
+  indicators[index].classList.add('active');
+  const gameMapping = {
+    0: 'Coin Flip',
+    1: 'Dice Roll',
+    2: 'Crypto Index Growth',
+    3: 'MuskPlay'
+  };
+  const gameName = gameMapping[index];
+  const gameCards = document.querySelectorAll('.game-card h2');
+  for (const card of gameCards) {
+    if (card.textContent.trim().includes(gameName)) {
+      card.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+      card.closest('.game-card').style.animation = 'highlight 2s';
+      setTimeout(() => {
+        card.closest('.game-card').style.animation = '';
+      }, 2000);
+      break;
+    }
+  }
+}
+function nextSlide() {
+  const slides = document.getElementsByClassName('slide');
+  const indicators = document.getElementsByClassName('indicator');
+  slides[currentSlide].style.animation = 'none';
+  slides[currentSlide].offsetHeight;
+  slides[currentSlide].style.animation = null;
+  currentSlide = (currentSlide + 1) % slides.length;
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].classList.remove('active');
+    indicators[i].classList.remove('active');
+  }
+  slides[currentSlide].classList.add('active');
+  indicators[currentSlide].classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const numberGrid = document.getElementById('numberGrid');
+  for (let i = 0; i < 10; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'number-cell';
+    cell.textContent = i;
+    cell.onclick = () => {
+      document.querySelectorAll('.number-cell').forEach(c => c.classList.remove('active'));
+      cell.classList.add('active');
+      selectedNumber = i;
+    };
+    numberGrid.appendChild(cell);
+  }
+  document.querySelectorAll('.prediction-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.prediction-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+  });
+  numberTickInterval = setInterval(() => {
+    const randomNum = Math.floor(Math.random() * 10);
+    document.getElementById('volatilityNumber').textContent = randomNum;
+  }, 1000);
+  particlesJS('particles-js', {
+    particles: {
+      number: {
+        value: 80
+      },
+      color: {
+        value: '#8b62ff'
+      },
+      shape: {
+        type: 'circle'
+      },
+      opacity: {
+        value: 0.5,
+        random: true
+      },
+      size: {
+        value: 3,
+        random: true
+      },
+      move: {
+        enable: true,
+        speed: 2
+      }
+    }
+  });
+  setInterval(nextSlide, 5000);
+  Array.from(indicators).forEach((indicator, index) => {
+    indicator.addEventListener('click', () => {
+      currentSlide = index;
+      showSlide(currentSlide);
+    });
+  });
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach((slide, index) => {
+    slide.addEventListener('click', () => {
+      currentSlide = index;
+      showSlide(index);
+    });
+  });
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      const item = question.parentElement;
+      const wasActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('active');
+      });
+      if (!wasActive) {
+        item.classList.add('active');
+      }
+    });
+  });
+  const modeSwitch = document.getElementById('modeSwitch');
+  const modeIndicator = document.getElementById('modeIndicator');
+  const actionButtons = document.getElementById('actionButtons');
+  modeSwitch.addEventListener('click', () => {
+    const isDemo = modeSwitch.classList.contains('demo-mode');
+    if (isDemo) {
+      modeSwitch.classList.remove('demo-mode');
+      modeSwitch.classList.add('real-mode');
+      modeSwitch.textContent = 'Switch to Demo Account';
+      modeIndicator.classList.remove('demo-badge');
+      modeIndicator.classList.add('real-badge');
+      modeIndicator.textContent = 'REAL MODE';
+      actionButtons.style.display = 'flex';
+      document.getElementById('balance').textContent = '0.00';
+    } else {
+      modeSwitch.classList.remove('real-mode');
+      modeSwitch.classList.add('demo-mode');
+      modeSwitch.textContent = 'Switch to Real Account';
+      modeIndicator.classList.remove('real-badge');
+      modeIndicator.classList.add('demo-badge');
+      modeIndicator.textContent = 'DEMO MODE';
+      actionButtons.style.display = 'none';
+      document.getElementById('balance').textContent = '1000.00';
+    }
+  });
+});</script>
+</body>
+</html>
